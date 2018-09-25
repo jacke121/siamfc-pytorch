@@ -1,5 +1,6 @@
 data/
 pretrained/
+mouse/
 __pycache__/
 *.ipynb_checkpoints
 *.pyc

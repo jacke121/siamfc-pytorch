@@ -3,6 +3,6 @@
 	"dist_threshold": 20,
 	"stop_on_failure": 0,
 	"dataset": "vot2016",
-	"video": "all",
+	"video": "bag",
 	"start_frame": 0
 }

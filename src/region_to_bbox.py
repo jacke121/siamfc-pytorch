@@ -1,3 +1,4 @@
+import numpy
 import numpy as np
 
 def region_to_bbox(region, center=True):
@@ -41,7 +42,7 @@ def _poly(region, center):
     h = s * (y2 - y1) + 1
 
     if center:
-        return cx, cy, w, h
+        return cx.astype(numpy.int64), cy.astype(numpy.int64), w.astype(numpy.int64), h.astype(numpy.int64)
     else:
-        return cx-w/2, cy-h/2, w, h
+        return (cx-w/2).astype('float32'), (cy-h/2).astype('float32'), w.astype('float32'), h.astype('float32')
 

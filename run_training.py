@@ -5,18 +5,20 @@ import sys
 import torch
 from torch.utils.data import DataLoader
 
-from got10k.datasets import ImageNetVID, GOT10k
+from got10k.datasets import ImageNetVID, GOT10k, VOT
 from data_utils import Pairwise
 from siamfc import TrackerSiamFC
 
 
 if __name__ == '__main__':
     # setup dataset
-    name = 'VID'
-    assert name in ['VID', 'GOT-10k']
+    name = 'VOT'
     if name == 'VID':
         root_dir = 'data/ILSVRC'
         seq_dataset = ImageNetVID(root_dir, subset=('train', 'val'))
+    elif name == 'VOT':
+            root_dir = r'model\test'
+            seq_dataset = VOT(root_dir,version=2016)
     elif name == 'GOT-10k':
         root_dir = 'data/GOT-10k'
         seq_dataset = GOT10k(root_dir, subset='train')
@@ -26,13 +28,13 @@ if __name__ == '__main__':
     cuda = torch.cuda.is_available()
     loader = DataLoader(
         pair_dataset, batch_size=8, shuffle=True,
-        pin_memory=cuda, drop_last=True, num_workers=4)
+        pin_memory=cuda, drop_last=True, num_workers=0)
 
     # setup tracker
     tracker = TrackerSiamFC()
 
     # path for saving checkpoints
-    net_dir = 'pretrained/siamfc_new'
+    net_dir = 'pretrained/siamfc'
     if not os.path.exists(net_dir):
         os.makedirs(net_dir)
 

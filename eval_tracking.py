@@ -8,6 +8,7 @@ import os
 if __name__ == '__main__':
     # setup tracker
     net_path = 'model/model.pth'
+    # net_path =r'D:\project\track\siamfc-pytorch\pretrained\siamfc_new\model_e50.pth'
     tracker = TrackerSiamFC(net_path=net_path)
     experiments = [
         # ExperimentGOT10k(r'F:\迅雷下载\vot2016',subset='test'),

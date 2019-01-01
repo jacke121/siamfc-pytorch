@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division
 
+import time
 import torch
 import torch.nn as nn
 import torch.nn.init as init
@@ -8,6 +9,9 @@ import torch.optim as optim
 import numpy as np
 import cv2
 from collections import namedtuple
+
+from PIL import Image
+from got10k.utils.viz import show_frame
 from torch.optim.lr_scheduler import ExponentialLR
 
 from got10k.trackers import Tracker
@@ -51,7 +55,7 @@ class SiamFC(nn.Module):
         out = out.view(n, 1, out.size(-2), out.size(-1))
 
         # adjust the scale of responses
-        out = 0.001 * out + 0.0
+        out = 0.001 * out
 
         return out
 
@@ -82,7 +86,7 @@ class TrackerSiamFC(Tracker):
         if net_path is not None:
             self.net.load_state_dict(torch.load(
                 net_path, map_location=lambda storage, loc: storage))
-        self.net = self.net.to(self.device)
+        self.net = self.net.cuda()#.to(self.device)
 
         # setup optimizer
         self.optimizer = optim.SGD(
@@ -180,9 +184,11 @@ class TrackerSiamFC(Tracker):
 
         # responses
         with torch.set_grad_enabled(False):
-            self.net.eval()
+            # self.net.eval()
+            start = time.time()
             instances = self.net.feature(instance_images)
             responses = F.conv2d(instances, self.kernel) * 0.001
+            print('net', time.time() - start)
         responses = responses.squeeze(1).cpu().numpy()
 
         # upsample responses and penalize scale changes
@@ -320,3 +326,28 @@ class TrackerSiamFC(Tracker):
         self.weights = torch.from_numpy(weights).to(self.device).float()
 
         return self.labels, self.weights
+
+    def track(self, img_files, box, visualize=False):
+            frame_num = len(img_files)
+            boxes = np.zeros((frame_num, 4))
+            boxes[0] = box
+            times = np.zeros(frame_num)
+
+            for f, img_file in enumerate(img_files):
+                image = Image.open(img_file)
+                if not image.mode == 'RGB':
+                    image.convert('RGB')
+
+                start_time = time.time()
+                if f == 0:
+                    self.init(image, box)
+                else:
+                    start=time.time()
+                    boxes[f, :] = self.update(image)
+                    print(f,time.time()-start)
+                times[f] = time.time() - start_time
+
+                if visualize:
+                    show_frame(image, boxes[f, :])
+
+            return boxes, times

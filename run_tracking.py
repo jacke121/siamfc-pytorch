@@ -13,6 +13,7 @@ if __name__ == '__main__':
     # setup experiments
     experiments = [
         # ExperimentGOT10k('data/GOT-10k', subset='test'),
+        # ExperimentGOT10k(r'F:\迅雷下载\vot2016',subset='test'),
         ExperimentGOT10k(r'model',subset='test'),
         # ExperimentOTB('data/OTB', version=2013),
         # ExperimentOTB('data/OTB', version=2015),
@@ -26,6 +27,7 @@ if __name__ == '__main__':
     ]
 
     # run tracking experiments and report performance
-    for e in experiments:
+    for i,e in enumerate(experiments):
+        print(i)
         e.run(tracker, visualize=True)
         e.report([tracker.name])
